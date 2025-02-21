@@ -1,0 +1,79 @@
+CREATE DATABASE RetailStoreDB;
+USE RetailStoreDB;
+
+CREATE TABLE Customers (
+    CustomerID INT AUTO_INCREMENT PRIMARY KEY,
+    FirstName VARCHAR(50),
+    LastName VARCHAR(50),
+    Email VARCHAR(100) UNIQUE,
+    RegistrationDate DATE
+);
+CREATE TABLE Products (
+    ProductID INT AUTO_INCREMENT PRIMARY KEY,
+    ProductName VARCHAR(100),
+    Category VARCHAR(50),
+    Price DECIMAL(10,2),
+    StockQuantity INT
+);
+CREATE TABLE Orders (
+    OrderID INT AUTO_INCREMENT PRIMARY KEY,
+    CustomerID INT,
+    ProductID INT,
+    OrderDate DATE,
+    Quantity INT,
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID) ON DELETE CASCADE,
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE
+);
+INSERT INTO Customers (FirstName, LastName, Email, RegistrationDate)
+VALUES 
+    ('maryam', 'mohamed', 'maryam@gmail.com', '2023-06-10'),
+    ('sara', 'mostafa', 'sara@gmail.com', '2023-01-15'),
+    ('yassmin', 'ahmed', 'yassmin@gmail.com', '2023-07-20'),
+    ('doha', 'ahmed', 'doha@gmail.com', '2023-02-05'),
+    ('yasser', 'Williams', 'yasser@gmail.com', '2023-03-01');
+INSERT INTO Products (ProductName, Category, Price, StockQuantity)
+VALUES 
+    ('Laptop', 'Electronics', 1670.00, 100),
+    ('Phone', 'Electronics', 9000.00, 25),
+    ('Headphones', 'Accessories', 1500.00, 700),
+    ('Tablet', 'Electronics', 600.00, 8),
+    ('Smartwatch', 'Accessories', 250.00, 20);
+INSERT INTO Orders (CustomerID, ProductID, OrderDate, Quantity)
+VALUES 
+    (1, 1, '2005-02-01', 1),
+    (2, 2, '2006-01-02', 2),
+    (3, 3, '2008-06-03', 6),
+    (4, 4, '2024-10-04', 5),
+    (5, 5, '2023-05-05', 3);
+SELECT * FROM Customers;
+SELECT * FROM Products;
+SELECT * FROM Orders;
+SELECT * FROM Customers WHERE RegistrationDate > '2023-02-01';
+SELECT * FROM Products ORDER BY Price DESC LIMIT 3;
+SELECT Orders.OrderID, Customers.FirstName, Customers.LastName, 
+       Products.ProductName, Orders.Quantity, Orders.OrderDate
+FROM Orders
+JOIN Customers ON Orders.CustomerID = Customers.CustomerID
+JOIN Products ON Orders.ProductID = Products.ProductID;
+SELECT Customers.CustomerID, Customers.FirstName, Customers.LastName,
+       SUM(Orders.Quantity * Products.Price) AS TotalSpent
+FROM Orders
+JOIN Customers ON Orders.CustomerID = Customers.CustomerID
+JOIN Products ON Orders.ProductID = Products.ProductID
+GROUP BY Customers.CustomerID, Customers.FirstName, Customers.LastName;
+SELECT CustomerID, COUNT(*) AS OrderCount 
+FROM Orders 
+GROUP BY CustomerID;
+SELECT Products.ProductID, Products.ProductName, 
+       SUM(Orders.Quantity) AS TotalQuantitySold, 
+       SUM(Orders.Quantity * Products.Price) AS TotalRevenue
+FROM Orders
+JOIN Products ON Orders.ProductID = Products.ProductID
+GROUP BY Products.ProductID, Products.ProductName;
+SELECT Products.ProductName, SUM(Orders.Quantity) AS TotalSold
+FROM Orders
+JOIN Products ON Orders.ProductID = Products.ProductID
+GROUP BY Products.ProductName
+ORDER BY TotalSold DESC
+LIMIT 1;
+
